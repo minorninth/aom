@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 
 <!--
-  JS Accessibility API Demos
-  2016
+  Accessibility Object Model Presentation
+  2017
 
-  Based on:
-  Using ARIA to create accessible interactive web apps
-  Dominic Mazzoni and Rachel Shearer
-  2011
-
-  Based on the Google I/O 2011 HTML slides template
-  Created by Luke Mahé and Marcin Wichary
+  Based on previous HTML slide presentation code authored by:
+  Dominic Mazzoni, Rachel Shearer, Luke Mahé and Marcin Wichary.
 
   Copyright Google Inc.
 
@@ -29,380 +24,138 @@
 
 <html>
   <head>
-    <title>JS A11y API Demos</title>
+    <title>Accessibility Object Model</title>
+    <meta charset="utf-8"/>
+    <script src="slides.js"></script>
+    <script src="aom_slides.js"></script>
+    <link rel="stylesheet" href="aom_styles.css">
+  </head>
 
-    <meta charset='utf-8' />
-    <script src='slides.js'></script>
-    <script>
-      var slides;
-      var showAllSlidesButton;
-      var ignoreFocusEvents = false;
-
-      function $(element) {
-        return document.getElementById(element);
-      }
-
-      function onSlideEnter() {
-        console.log('onSlideEnter');
-        window.setTimeout(function() {
-          document.activeElement.blur();
-          window.setTimeout(function() {
-            var slideIndex = parseInt(location.hash.substr(1), 10) - 1;
-            ignoreFocusEvents = true;
-            slides[slideIndex].focus();
-            console.log('onSlideEnter focus');
-            window.setTimeout(function() {
-              ignoreFocusEvents = false;
-            }, 0);
-          }, 600);
-        }, 600);
-      }
-
-      function onFocus(e) {
-        console.log('focus ' + e.target);
-        document.pageXOffset = 0;
-        if (ignoreFocusEvents) {
-          console.log('ignore focus');
-          return true;
-        }
-        var t = e.target;
-        while (t && t.tagName != 'ARTICLE') {
-          t = t.parentElement;
-        }
-        if (t) {
-          var slideIndex = parseInt(t.getAttribute('slideIndex'), 10);
-          if (curSlide != slideIndex) {
-            console.log('Focus switch from ' +
-                        (curSlide + 1) + ' to ' + (slideIndex + 1));
-            curSlide = slideIndex;
-            updateSlides();
-            document.body.scrollLeft = 0;
-          }
-        }
-        return true;
-      }
-
-      function onScroll(e) {
-        console.log('scroll');
-        document.body.scrollLeft = 0;
-        e.preventDefault();
-        return false;
-      }
-
-      // Called when the page loads.
-      function initAriaPreso() {
-        slides = document.querySelectorAll('section.slides > article');
-
-        for (var i = 0; i < slides.length; i++) {
-          slides[i].setAttribute('tabindex', '-1');
-          slides[i].setAttribute('slideIndex', i);
-          slides[i].setAttribute('title', 'Slide ' + (i + 1));
-        }
-
-        document.addEventListener('slideenter', onSlideEnter, true);
-        document.addEventListener('focus', onFocus, true);
-        document.addEventListener('scroll', onScroll, true);
-      }
-
-      function refreshLiveCoding(basename) {
-        var src = $(basename + '_src');
-        var dst = $(basename + '_embed');
-        var html = src.innerText;
-        dst.innerHTML = html;
-        if (window[basename + '_hook'])
-          window[basename + '_hook']();
-        return false;
-      }
-
-      function addLiveCodingEventListeners(basename, src) {
-        src.addEventListener('keydown', function(e) {
-          if (e.keyCode == 9)  // tab
-            return true;
-          window.setTimeout(function() {
-            refreshLiveCoding(basename);
-          }, 0);
-          e.stopPropagation();
-          return false;
-        }, false);
-        src.addEventListener('blur', function(e) {
-          window.setTimeout(function() {
-            prettyPrint();
-          }, 0);
-        }, false);
-      }
-
-      function generateOutput(basename) {
-        var script = $(basename + '_script');
-        var output = $(basename + '_output');
-        output.innerHTML = '';
-        var js = script.innerText;
-        js = 'function print(str) {\n' +
-             '  var o = document.createElement("xmp");\n' +
-             '  o.innerText = str;\n' +
-             '  $("' + basename + '_output").appendChild(o);' +
-             '}' + js;
-        try {
-          eval(js);
-        } catch (e) {
-          output.innerText += e;
-        }
-        var run = document.createElement('button');
-        run.className = 'run_again';
-        run.style.marginTop = "1em";
-        run.innerText = 'Run again';
-        output.appendChild(run);
-        run.addEventListener('click', function() {
-          refreshLiveCoding(basename);
-          generateOutput(basename);
-        }, false);
-        run.focus();
-      }
-
-      // Sync a contenteditable containing html with a div containing the result.
-      function manageLiveCoding(basename) {
-        var src = $(basename + '_src');
-        src.title = "HTML source";
-        var code = src.innerHTML;
-        if (code[0] == '\n')
-          code = code.substr(1);
-        code = code.replace(/\n\n/g, '\n');
-        code = code.replace(/</g, '&lt;');
-        code = code.replace(/>/g, '&gt;');
-        src.innerHTML = code;
-
-        refreshLiveCoding(basename);
-        addLiveCodingEventListeners(basename, src);
-
-        var output = $(basename + '_output');
-        output.title = "JavaScript output";
-        var run = document.createElement('button');
-        run.className = 'run';
-        run.innerText = 'Run';
-        run.addEventListener('click', function() {
-          generateOutput(basename);
-        }, false);
-        output.appendChild(run);
-
-        $(basename + '_script').title = "JavaScript Source";
-        $(basename + '_embed').title = "HTML Output";
-      }
-
-      // Override keys used by interactive controls so they don't move
-      // to the next slide.
-      function overrideKeys(e) {
-        if (e.keyCode == 32 ||  // space
-            e.keyCode == 13 ||  // return
-            e.keyCode == 8 ||   // tab
-            e.keyCode == 38 ||  // up-arrow
-            e.keyCode == 40) {  // down-arrow
-          e.stopPropagation();
-        }
-        var active = document.activeElement;
-        if ((e.keyCode == 37 || e.keyCode == 39) &&  // left/right arrows
-            active.getAttribute("contentEditable") != "") {
-          e.stopPropagation();
-        }
-        return true;
-      }
-    </script>
-</head>
-
-  <style>
-    article:focus {
-      outline: none;
-    }
-
-    .slides > article {
-      -webkit-transition: -webkit-transform .4s ease-out !important;
-    }
-
-    iframe {
-      height: 800px !important;
-    }
-
-    h3 {
-      margin-bottom: 30px !important;
-    }
-
-    h3 + iframe {
-      height: 740px !important;
-    }
-
-    .parenthetical {
-      margin: 0 0.5em 0 0.5em;
-      color: #aaa;
-    }
-
-    .livecell {
-      margin: 0 20px 20px 0;
-      float: left;
-      width: 594px;
-      height: 340px;
-      line-height: 24px;
-      color: black;
-      border: 1px solid #696969;
-      padding: 5px 10px;
-    }
-
-    .lefthalf_src {
-      font-family: 'Droid Sans Mono', 'Courier New', monospace;
-      font-size: 15px;
-      background: rgb(240, 240, 240);
-      overflow: auto;
-    }
-
-    div.righthalf_embed {
-      overflow: hidden;
-      font-size: 24px;
-      line-height: 36px;
-    }
-    div.righthalf_embed * {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-    div.righthalf_embed label {
-      display: block;
-      margin: 0 0 10px 0;
-    }
-    div.righthalf_embed input[type=text],input[type=password] {
-      border: 1px solid #666;
-    }
-    div.righthalf_embed input[type=submit],button {
-      display: block;
-      padding: 10px 20px;
-      border: 1px solid #666;
-      background: #eee;
-      border-radius: 6px;
-    }
-
-    .lefthalf_script {
-      font-family: 'Droid Sans Mono', 'Courier New', monospace;
-      font-size: 15px;
-      background: rgb(240, 240, 240);
-      overflow: auto;
-    }
-
-    div.righthalf_output {
-      font-family: 'Droid Sans Mono', 'Courier New', monospace;
-      font-size: 15px;
-      overflow: auto;
-    }
-
-    .run {
-      font-size: 24pt;
-      padding: 10px 20px;
-      color: #060;
-      font-weight: bold;
-      margin: 20px;
-    }
-
-    .run_again {
-      font-size: 18pt;
-      border: 0;
-      margin: 0;
-      padding: 0;
-      color: #060;
-      background: none !important;
-      margin-top: 20px;
-    }
-
-    button.refresh {
-      cursor: pointer;
-      margin: 0px;
-      padding: 0px;
-      font-size: 12px;
-      background: none;
-      border: 0px;
-      text-decoration: underline;
-      color: #00f;
-    }
-
-    article.title {
-      background-color: #69f;
-    }
-    .twoimages div {
-      margin-top: 30px;
-      float: left;
-      width: 450px;
-      height: 300px;
-      line-height: 300px;
-      text-align: center;
-      position: relative;
-    }
-    .twoimages div img {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      margin: auto;
-      max-width: 470px;
-      max-height: 300px;
-    }
-
-    .medimage {
-      margin-top: 30px;
-      width: 1100px;
-      text-align: center;
-    }
-    .medimage img {
-      max-width: 1100px;
-      max-height: 450px;
-    }
-
-    .largeimage {
-      margin-top: 30px;
-      width: 1100px;
-      text-align: center;
-    }
-    .largeimage img {
-      max-width: 1100px;
-      max-height: 800px;
-    }
-
-    .flushbottom {
-      position: fixed;
-      bottom: 0px;
-      margin: 0;
-      width: 900px;
-      text-align: center;
-    }
-    .flushbottom img {
-      max-width: 900px;
-      max-height: 300px;
-    }
-
-    .bkgnd {
-      width: 900px;
-      text-align: center;
-    }
-    .bkgnd img {
-      opacity: 0.1;
-      max-width: 900px;
-    }
-
-    .largevideo {
-      margin-top: 20px;
-      text-align: center;
-      max-width: 1100px;
-    }
-
-    .largevideo video {
-      max-width: 1100px;
-      height: 650px;
-    }
-
-</style>
-
-<body style='display: none' onload='initAriaPreso()'>
-<section class='slides' onkeydown="return overrideKeys(event)">
+<body style="display: none" onload="initAriaPreso()">
+<section class="slides" onkeydown="return overrideKeys(event)">
 
 <article class="title">
   <h1>
-    JS Accessibility API Demos
+    Accessibility Object Model
   </h1>
   <p>
-    Dominic Mazzoni
+    Alexander Surkov, Mozilla
+    <br>
+    Alice Boxhall, Google
+    <br>
+    Dominic Mazzoni, Google
+    <br>
+    James Craig, Apple
+  </p>
+</article>
+
+<article>
+  <h3>
+    Presentation Check
+  </h3>
+  <div style="padding-right: 30%;">
+    <div class="aom_enabled">
+      <p class="unicode_background" style="color: #99ee99;">
+        &#x2714;
+      </p>
+      <p>
+        Great! The Accessibility Object Model is enabled in this browser.
+      </p>
+      <p>
+        Demos should work fine.
+      </p>
+    </div>
+    <div class="aom_disabled">
+      <p class="unicode_background" style="color: #ee9999;">
+        &#x2718;
+      </p>
+      <p>
+        Accessibility Object Model support is not enabled.
+      </p>
+      <p>
+        To enable it in Chrome, use this command-line switch:
+      </p>
+      <pre>--enable-blink-features=AccessibilityObjectModel</pre>
+    </div>
+  </div>
+</article>
+
+<article>
+  <h3>
+    Overview
+  </h3>
+  <ul>
+    <li>Background</li>
+    <li>Gaps</li>
+    <li>
+      Phase 1: Accessibility Properties
+      <br>
+      ...with demos
+    </li>
+    <li>Phase 2: Accessibility Properties</li>
+    <li>Phase 3: Accessibility Properties</li>
+    <li>Phase 4: Introspection</li>
+    <li>Q&amp;A</li>
+  </ul>
+</article>
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
+
+  </p>
+  <p>
+
+  </p>
+  <p>
+
+  </p>
+</article>
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
+
+  </p>
+  <p>
+
+  </p>
+  <p>
+
+  </p>
+</article>
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
+
+  </p>
+  <p>
+
+  </p>
+  <p>
+
+  </p>
+</article>
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
+
+  </p>
+  <p>
+
+  </p>
+  <p>
+
   </p>
 </article>
 
@@ -430,7 +183,7 @@ print("Sign in role: " + axSignIn.role);
 print("Sign in label: " + axSignIn.label);
 </pre>
 <div id="rolelabel_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding('rolelabel');</script>
+<script>manageLiveCoding("rolelabel");</script>
 </article>
 
 <article><h3>Example 2: Explore tree</h3>
@@ -461,7 +214,7 @@ print("Item 2 label: " + axItem2.label);
 print("axItem1.parent == axList: " + (axItem1.parent == axList));
 </pre>
 <div id="exploretree_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding('exploretree');</script>
+<script>manageLiveCoding("exploretree");</script>
 </article>
 
 <article><h3>Example 3: Modify role, label</h3>
@@ -479,7 +232,7 @@ $("sick_bay").accessibleElement.label = "Ten forward";
 print("Done.");
 </pre>
 <div id="modify_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding('modify');</script>
+<script>manageLiveCoding("modify");</script>
 </article>
 
 <article><h3>Example 4: Feature detection</h3>
@@ -502,7 +255,7 @@ axStun.role = "quantum-checkbox";
 print("Trying to set role to quantum-checkbox: " + axStun.role);
 </pre>
 <div id="feature_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding('feature');</script>
+<script>manageLiveCoding("feature");</script>
 </article>
 
 <article><h3>Example 5: Modify position</h3>
@@ -521,7 +274,7 @@ $("communicator").accessibleElement.offsetTop += 25;
 print("Done.");
 </pre>
 <div id="position_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding('position');</script>
+<script>manageLiveCoding("position");</script>
 </article>
 
 <article><h3>Example 6: Modify CSS generated text</h3>
@@ -544,7 +297,7 @@ axHeading.lastChild.label = ", Future";
 print("Heading label is now: " + axHeading.label);
 </pre>
 <div id="cssgen_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding('cssgen');</script>
+<script>manageLiveCoding("cssgen");</script>
 </article>
 
 <article><h3>Example 7: Accessible click listener</h3>
@@ -568,7 +321,7 @@ $("picard").accessibleElement.ondefaultaction = function() {
 };
 </pre>
 <div id="click_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding('click');</script>
+<script>manageLiveCoding("click");</script>
 </article>
 
 <article><h3>Example 8: Virtual element</h3>
@@ -590,7 +343,7 @@ var axText = new AccessibleElement({
 axEnterprise.appendChild(axText);
 </pre>
 <div id="virtual_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding('virtual');</script>
+<script>manageLiveCoding("virtual");</script>
 </article>
 
 <article><h3>Example 9: Canvas slider</h3>
