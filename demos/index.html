@@ -75,7 +75,9 @@
       <p>
         To enable it in Chrome, use this command-line switch:
       </p>
-      <pre>--enable-blink-features=AccessibilityObjectModel</pre>
+      <pre>
+        --enable-blink-features=AccessibilityObjectModel
+      </pre>
     </div>
   </div>
 </article>
@@ -205,14 +207,17 @@
     native elements.
   </p>
 
-<pre>&lt;!-- Page author uses the custom element as they would a native element --&gt;
-&lt;custom-slider min="0" max="5" value="3"&gt;&lt;/custom-slider&gt;
+  <pre>
+    <!-- Page author uses the custom element as they would a native element -->
+    <custom-slider min="0" max="5" value="3"></custom-slider>
 
-&lt;!-- Custom element is forced to "sprout" extra attributes to express semantics --&gt;
-&lt;custom-slider min="0" max="5" value="3" role="slider"
-               tabindex="0"
-               aria-valuemin="0" aria-valuemax="5"
-  aria-valuenow="3" aria-valuetext="3"&gt;&lt;/custom-slider&gt;</pre>
+    <!-- Custom element is forced to "sprout" extra attributes
+         to express semantics -->
+    <custom-slider min="0" max="5" value="3" role="slider"
+                   tabindex="0"
+                   aria-valuemin="0" aria-valuemax="5"
+                   aria-valuenow="3" aria-valuetext="3"></custom-slider>
+  </pre>
   <p>
     This is mostly just an inconvenience. For the most part it's
     still possible to make custom elements and other widgets
@@ -229,16 +234,20 @@
     ARIA attributes let one element refer to the ID of another element.
   </p>
   <p><code>aria-labelledby</code> indicates one element labels another:</p>
-<pre>&lt;div id="firstname"&gt;First name:&lt;/div&gt;
-&lt;input aria-labelledby="firstname"&gt;</pre>
+  <pre>
+    <div id="firstname">First name:</div>
+    <input aria-labelledby="firstname">
+  </pre>
   <p>
   <p><code>aria-activedescendant</code> indicates a descendant that's
     focused in a composite control like a list box.</p>
-<pre>&lt;div role="listbox" aria-activedescendant="item1" tabindex="0"&gt;
-  &lt;div role="option" id="item1"&gt;Item 1&lt;/div&gt;
-  &lt;div role="option" id="item2"&gt;Item 2&lt;/div&gt;
-  &lt;div role="option" id="item3"&gt;Item 3&lt;/div&gt;
-&lt;/div&gt;</pre>
+  <pre>
+    <div role="listbox" aria-activedescendant="item1" tabindex="0">
+      <div role="option" id="item1">Item 1</div>
+      <div role="option" id="item2">Item 2</div>
+      <div role="option" id="item3">Item 3</div>
+    </div>
+  </pre>
 </article>
 
 <article>
@@ -259,11 +268,13 @@
     For example, it's <em>impossible</em> to make an accessible
     custom listbox using <code>aria-activedescendant</code>:
   </p>
-<pre>&lt;custom-listbox&gt;
-  &lt;custom-option id="item1"&gt;Item 1&lt;/div&gt;
-  &lt;custom-option id="item2"&gt;Item 2&lt;/div&gt;
-  &lt;custom-option id="item3"&gt;Item 3&lt;/div&gt;
-&lt;/custom-listbox&gt;</pre>
+  <pre>
+    <custom-listbox>
+      <custom-option id="item1">Item 1</custom-option>
+      <custom-option id="item2">Item 2</custom-option>
+      <custom-option id="item3">Item 3</custom-option>
+    </custom-listbox>
+  </pre>
 </article>
 
 <article>
@@ -290,9 +301,174 @@
     Gap 4: Every accessible node requires a DOM element.
   </h3>
   <p>
-    Many web apps create custom user interfaces using an HTML
-    canvas (2D or WebGL), either for performance reasons, or
-    because the app is displaying non-web UI rendered elsewhere.
+    To make a canvas-based UI accessible requires hacks like
+    fake DOM elements hiding behind the canvas.
+  </p>
+  <p>
+
+  </p>
+</article>
+
+<article>
+  <h3>
+    Gap 5: No introspection
+  </h3>
+  <p>
+    No way to programmatically detect if an accessibility
+    feature is supported by the browser or if you're using it
+    correctly.
+  </p>
+  <pre>
+    <!-- illegal role - how do you know? -->
+    <div role="chef"></div>
+  </pre>
+
+  <pre>
+    <!-- attribute not allowed on that role - how do you know? -->
+    <div role="listbox" aria-setsize="25"></div>
+  </pre>
+</article>
+
+<article>
+  <h1>
+    Accessibility Object Model
+  </h1>
+</article>
+
+<article>
+  <h3>
+    AOM: Brief History
+  </h3>
+  <p>
+    Microsoft and Mozilla independently proposed a JavaScript
+    accessibility API. Apple and Google had similar ideas.
+  </p>
+  <p>
+    This spec takes the best ideas and organizes them into
+    four <em>phases</em>, each with smaller scope, each solving
+    an increasing number of real-world use-cases.
+  </p>
+  <p>
+    AOM is being implemented behind a flag in Google Chrome now
+    (currently partway through phase 3).
+  </p>
+</article>
+
+<article>
+  <h3>
+    Phase 1: Accessible Properties
+  </h3>
+  <p>
+    Every ARIA attribute, such as <code>role</code> and
+    <code>aria-checked</code> here:
+  </p>
+
+  <pre>
+    <div role="checkbox" aria-checked="true">Receive promotional offers</div>
+  </pre>
+
+  <p>
+    ...can be replaced with equivalent JavaScript:
+  </p>
+
+  <pre>
+    el.accessibleNode.role = "checkbox";
+    el.accessibleNode.checked = true;
+  </pre>
+
+</article>
+
+<article>
+  <h3>
+    Phase 1: Accessible Properties (2)
+  </h3>
+  <p>
+    Instead of using an IDREF:
+  </p>
+  <pre>
+    el.setAttribute('aria-activedescendant', 'child' + childIndex);
+  </pre>
+  <p>
+    ...just reference another element directly:
+  </p>
+  <pre>
+    el.accessibleNode.activeDescendant = child.accessibleNode;
+  </pre>
+
+</article>
+
+<article>
+  <h3>
+    Phase 1 Demo
+  </h3>
+  <pre id="phase1_src" class="livecell lefthalf_src" tabindex="0"
+       contenteditable="true" spellcheck="false">
+    <button id="bridge">Bridge</button>
+    <button id="engineering">Engineering</button>
+    <button id="sick_bay">Sick Bay</button>
+  </pre>
+  <div id="phase1_embed" class="livecell righthalf_embed"></div>
+  <pre id="phase1_script" class="livecell lefthalf_script" tabindex="0"
+       contenteditable="true" spellcheck="false">
+    $("engineering").accessibleNode.role = "link";
+    $("sick_bay").accessibleNode.label = "Ten forward";
+    print("Done.");
+  </pre>
+  <div id="phase1_output" class="livecell righthalf_output"></div>
+  <script>manageLiveCoding("phase1");</script>
+</article>
+
+
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
+  </p>
+  <p>
+
+  </p>
+</article>
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
+  </p>
+  <p>
+
+  </p>
+</article>
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
+  </p>
+  <p>
+
+  </p>
+</article>
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
+  </p>
+  <p>
+
+  </p>
+</article>
+
+<article>
+  <h3>
+
+  </h3>
+  <p>
   </p>
   <p>
 
@@ -314,11 +490,11 @@
 <div id="rolelabel_embed" class="livecell righthalf_embed"></div>
 <pre id="rolelabel_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-var axUsername = $("username").accessibleElement;
+var axUsername = $("username").accessibleNode;
 print("Username field role: " + axUsername.role);
 print("Username field label: " + axUsername.label);
 
-var axSignIn = $("sign_in").accessibleElement;
+var axSignIn = $("sign_in").accessibleNode;
 print("Sign in role: " + axSignIn.role);
 print("Sign in label: " + axSignIn.label);
 </pre>
@@ -340,7 +516,7 @@ print("Sign in label: " + axSignIn.label);
 <div id="exploretree_embed" class="livecell righthalf_embed"></div>
 <pre id="exploretree_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-var axList = $("list1").accessibleElement;
+var axList = $("list1").accessibleNode;
 print("List role: " + axList.role);
 
 var axItem1 = axList.firstChild;
@@ -367,8 +543,8 @@ print("axItem1.parent == axList: " + (axItem1.parent == axList));
 <div id="modify_embed" class="livecell righthalf_embed"></div>
 <pre id="modify_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-$("engineering").accessibleElement.role = "link";
-$("sick_bay").accessibleElement.label = "Ten forward";
+$("engineering").accessibleNode.role = "link";
+$("sick_bay").accessibleNode.label = "Ten forward";
 print("Done.");
 </pre>
 <div id="modify_output" class="livecell righthalf_output"></div>
@@ -385,7 +561,7 @@ print("Done.");
 <div id="feature_embed" class="livecell righthalf_embed"></div>
 <pre id="feature_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-var axStun = $("stun").accessibleElement;
+var axStun = $("stun").accessibleNode;
 print("Original role: " + axStun.role);
 
 axStun.role = "switch";
@@ -409,8 +585,8 @@ print("Trying to set role to quantum-checkbox: " + axStun.role);
 <div id="position_embed" class="livecell righthalf_embed"></div>
 <pre id="position_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-$("tricorder").accessibleElement.offsetLeft += 50;
-$("communicator").accessibleElement.offsetTop += 25;
+$("tricorder").accessibleNode.offsetLeft += 50;
+$("communicator").accessibleNode.offsetTop += 25;
 print("Done.");
 </pre>
 <div id="position_output" class="livecell righthalf_output"></div>
@@ -431,7 +607,7 @@ print("Done.");
 <div id="cssgen_embed" class="livecell righthalf_embed"></div>
 <pre id="cssgen_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-var axHeading = $("time_heading").accessibleElement;
+var axHeading = $("time_heading").accessibleNode;
 axHeading.firstChild.label = "Past, ";
 axHeading.lastChild.label = ", Future";
 print("Heading label is now: " + axHeading.label);
@@ -455,7 +631,7 @@ $("kirk").addEventListener("click", function() {
 $("picard").addEventListener("click", function() {
   print("Clicked on Picard");
 });
-$("picard").accessibleElement.ondefaultaction = function() {
+$("picard").accessibleNode.ondefaultaction = function() {
   print("Accessible click on Picard");
   return false;
 };
@@ -472,7 +648,7 @@ $("picard").accessibleElement.ondefaultaction = function() {
 <div id="virtual_embed" class="livecell righthalf_embed"></div>
 <pre id="virtual_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-var axEnterprise = $("enterprise").accessibleElement;
+var axEnterprise = $("enterprise").accessibleNode;
 axEnterprise.role = "group";
 
 var axText = new AccessibleElement({
@@ -597,7 +773,7 @@ window['canvas_slider_hook'] = function() {
 <div id="canvas_slider_embed" class="livecell righthalf_embed"></div>
 <pre id="canvas_slider_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-var axSlider = $("slider").accessibleElement;
+var axSlider = $("slider").accessibleNode;
 axSlider.role = "slider";
 axSlider.onaccessiblesetvalue = function(event) {
     $("slider").setAttribute('value', event.value);
@@ -638,7 +814,7 @@ interface AccessibleElement : EventTarget {
 <pre style="width:600px; float: left; margin-left: 20px;">
 partial interface Node {
   readonly attribute AccessibleElement?
-      accessibleElement;
+      accessibleNode;
 };
 
 dictionary AccessibleSource {
