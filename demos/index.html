@@ -87,72 +87,212 @@
   <ul>
     <li>Background</li>
     <li>Gaps</li>
-    <li>
-      Phase 1: Accessibility Properties
-      <br>
-      ...with demos
-    </li>
-    <li>Phase 2: Accessibility Properties</li>
-    <li>Phase 3: Accessibility Properties</li>
+    <li>Phase 1: Properties</li>
+    <li>Phase 2: Actions / Input Events</li>
+    <li>Phase 3: Virtual Nodes</li>
     <li>Phase 4: Introspection</li>
     <li>Q&amp;A</li>
   </ul>
 </article>
 
-<article>
+<article class="medimage">
   <h3>
-
+    Background
   </h3>
   <p>
+    Assistive technology (AT) augments or replaces the existing UI for
+    an application. Examples include:
+    <ul>
+      <li>Screen reader
+      <li>Voice Control
+      <li>Switch Access
+    </ul>
+  </p>
+  <img src="../images/a11y-tree.png"
+       alt="Image showing 4 layers of 2-way communication - from the application, to the accessibility tree, to assistive technology, to the user.">
+</article>
 
+<article>
+  <h3>
+    Accessibility APIs
+  </h3>
+  <p>
+    Each operating system has its own accessibility APIs for
+    native applications.
+  </p>
+  <ul>
+    <li><b>Windows</b>: MSAA, IAccessible2, UI Automation
+    <li><b>macOS</b>: NSAccessibility
+    <li><b>iOS</b>: UIAccessibility
+    <li>etc.
+  </ul>
+  <p>
+    Besides assistive technology, these APIs are also often
+    used for <em>automation</em>, for example for password
+    managers or for single-sign-on.
+  </p>
+</article>
+
+<article class="medimage">
+  <h3>
+    Accessibility Tree
+  </h3>
+  <p>
+    Native applications expose an <em>accessibility tree</em> via
+    accessibility APIs. Each <em>accessibility node</em> has properties
+    such as a <b>role</b>, <b>name</b>, <b>state</b>, and
+    <b>actions</b>.
+  </p>
+  <img src="../images/a11y-node.png"
+       alt="Visualization of an accessibility tree. The root has role main, the child has role form, then it has three children, a radio button, a slider, and a button, each with role, name, state, and actions pictured.">
+</article>
+
+<article class="largeimage">
+  <h3>
+    Accessibility on the web
+  </h3>
+  <p>
+    Web browsers automatically map the DOM into the accessibility tree.
+  </p>
+  <img src="../images/DOM-a11y-tree.png"
+       alt="Image showing how the the web browser simultaneously paints the visual UI and also updates the accessibility tree.">
+</article>
+
+<article class="largeimage">
+  <h3>
+    Web accessibility APIs
+  </h3>
+  <p>
+    The web has rich support for making applications accessible, but
+    only via a declarative API.
   </p>
   <p>
+    There's always a one-to-one correspondence between a DOM node and
+    a node in the accessibility tree.
+  </p>
+  <img src="../images/a11y-node-ARIA.png"
+       alt="Image showing how a div with role=checkbox might simultaneously be drawn as a custom checkbox, while mapping onto a native chcekbox in the accessibility API.">
+</article>
 
+<article>
+  <h3>
+    Gaps
+  </h3>
+  <p>
+    There are several key gaps in the web platform and ARIA.
   </p>
   <p>
-
+    Some gaps are about ergnomonics; it's possible to make an app
+    accessible but the APIs are inconvenient or cumbersome, but
+    usable.
+  </p>
+  <p>
+    Others gaps make it impossible for web developers to make
+    apps with the same degree of accessibility as native apps.
+  </p>
+  <p>
+    We're going to focus on <b>five key gaps</b>.
   </p>
 </article>
 
 <article>
   <h3>
-
+    Gap 1: Leaky abstractions
   </h3>
   <p>
-
+    Today, a library author creating a custom element is forced to
+    "sprout" ARIA attributes to express semantics which are implicit for
+    native elements.
   </p>
-  <p>
 
-  </p>
-  <p>
+<pre>&lt;!-- Page author uses the custom element as they would a native element --&gt;
+&lt;custom-slider min="0" max="5" value="3"&gt;&lt;/custom-slider&gt;
 
+&lt;!-- Custom element is forced to "sprout" extra attributes to express semantics --&gt;
+&lt;custom-slider min="0" max="5" value="3" role="slider"
+               tabindex="0"
+               aria-valuemin="0" aria-valuemax="5"
+  aria-valuenow="3" aria-valuetext="3"&gt;&lt;/custom-slider&gt;</pre>
+  <p>
+    This is mostly just an inconvenience. For the most part it's
+    still possible to make custom elements and other widgets
+    accessible.
   </p>
 </article>
 
 <article>
   <h3>
-
+    Gap 2: Limitations of IDREFs
   </h3>
   <p>
-
+    To express an accessible relationship between two elements in the DOM,
+    ARIA attributes let one element refer to the ID of another element.
   </p>
+  <p><code>aria-labelledby</code> indicates one element labels another:</p>
+<pre>&lt;div id="firstname"&gt;First name:&lt;/div&gt;
+&lt;input aria-labelledby="firstname"&gt;</pre>
   <p>
-
-  </p>
-  <p>
-
-  </p>
+  <p><code>aria-activedescendant</code> indicates a descendant that's
+    focused in a composite control like a list box.</p>
+<pre>&lt;div role="listbox" aria-activedescendant="item1" tabindex="0"&gt;
+  &lt;div role="option" id="item1"&gt;Item 1&lt;/div&gt;
+  &lt;div role="option" id="item2"&gt;Item 2&lt;/div&gt;
+  &lt;div role="option" id="item3"&gt;Item 3&lt;/div&gt;
+&lt;/div&gt;</pre>
 </article>
 
 <article>
   <h3>
-
+    Gap 2: Limitations of IDREFs (2)
   </h3>
   <p>
-
+    It can be <em>cumbersome</em> and <em>error-prone</em> to
+    maintain unique IDs on all elements that have a relationship
+    with some other element.
   </p>
   <p>
+    But if you're using custom elements, it's <em>impossible</em> to
+    establish a relationship between two elements that aren't part
+    of the same <em>tree scope</em>.
+  </p>
+  <p>
+    For example, it's <em>impossible</em> to make an accessible
+    custom listbox using <code>aria-activedescendant</code>:
+  </p>
+<pre>&lt;custom-listbox&gt;
+  &lt;custom-option id="item1"&gt;Item 1&lt;/div&gt;
+  &lt;custom-option id="item2"&gt;Item 2&lt;/div&gt;
+  &lt;custom-option id="item3"&gt;Item 3&lt;/div&gt;
+&lt;/custom-listbox&gt;</pre>
+</article>
 
+<article>
+  <h3>
+    Gap 3: No way to capture input events from AT
+  </h3>
+  <p>
+    ARIA only helps the web author communicate in one direction: from
+    the web app to the assistive technology.
+  </p>
+  <p>
+    However, AT can also command and control applications, for example
+    issuing commands to activate, focus, or scroll. While native HTML
+    elements already support these commands, web authors can't
+    override this behavior for custom elements.
+  </p>
+  <p>
+    Examples: AT wants to <b>select</b> an item in a list box,
+    <b>increment</b> a slider, or <b>dismiss</b> a dialog.
+</article>
+
+<article>
+  <h3>
+    Gap 4: Every accessible node requires a DOM element.
+  </h3>
+  <p>
+    Many web apps create custom user interfaces using an HTML
+    canvas (2D or WebGL), either for performance reasons, or
+    because the app is displaying non-web UI rendered elsewhere.
   </p>
   <p>
 
