@@ -171,6 +171,7 @@ function updateSlides() {
     if (!el) {
       return;
     }
+
     el.setAttribute('aria-hidden', 'true');
 
     switch (i) {
@@ -378,6 +379,7 @@ function setupFrames() {
 };
 
 function makeCurrentSlideAccessible() {
+  console.log('makeCurrentSlideAccessible 0');
   var el = getSlideEl(curSlide);
   if (!el) {
     return;
@@ -391,7 +393,7 @@ function makeCurrentSlideAccessible() {
 }
 
 function handleTransitionEnd(event) {
-  if (event.target.className != 'current') {
+  if (!event.target.classList.contains('current')) {
     return;
   }
 
@@ -401,18 +403,18 @@ function handleTransitionEnd(event) {
 function setupInteraction() {
   /* Clicking and tapping */
 
-  var el = document.createElement('div');
+  var el = document.createElement('button');
+  el.innerHTML = '&#x2190;';
   el.className = 'slide-area';
-  el.setAttribute('role', 'button');
   el.setAttribute('aria-label', 'Previous Slide');
   el.tabIndex = -1;
   el.id = 'prev-slide-area';
   el.addEventListener('click', prevSlide, false);
   document.querySelector('section.slides').appendChild(el);
 
-  el = document.createElement('div');
+  el = document.createElement('button');
   el.className = 'slide-area';
-  el.setAttribute('role', 'button');
+  el.innerHTML = '&#x2192;';
   el.setAttribute('aria-label', 'Next Slide');
   el.tabIndex = -1;
   el.id = 'next-slide-area';

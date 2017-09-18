@@ -60,7 +60,13 @@ function initAriaPreso() {
   for (var i = 0; i < slides.length; i++) {
     slides[i].setAttribute('tabindex', '-1');
     slides[i].setAttribute('slideIndex', i);
-    slides[i].setAttribute('title', 'Slide ' + (i + 1));
+
+    var title = 'Slide ' + (i + 1);
+    var heading = slides[i].querySelector('h1,h2,h3,h4,h5,h6');
+    if (heading)
+      title = heading.textContent + ' ' + title;
+
+    slides[i].setAttribute('aria-label', title);
   }
 
   document.addEventListener('slideenter', onSlideEnter, true);
