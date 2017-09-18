@@ -80,6 +80,12 @@
       </pre>
     </div>
   </div>
+  <p style="margin-top: 350px">
+    Tip: Arrow keys move between slides, but not when something else has focus.
+  </p>
+  <p>
+    Page Up / Down moves between slides, regardless of focus.
+  </p>
 </article>
 
 <article>
@@ -622,13 +628,6 @@
   </script>
 </article>
 
-
-
-
-
-
-
-
 <article><h3>Phase 2 demo: Canvas slider</h3>
 <script>
 window['canvas_slider_hook'] = function() {
@@ -642,8 +641,8 @@ window['canvas_slider_hook'] = function() {
             value = max;
         if (value < min)
             value = min;
-        canvas.setAttribute('aria-valuetext', value);
-        canvas.setAttribute('aria-valuenow', value);
+        canvas.accessibleNode.valueText = "" + value;
+        canvas.accessibleNode.valueNow = value;
         canvas.setAttribute('value', value);
     }
     canvas.addEventListener('keydown', function(event) {
@@ -735,21 +734,26 @@ window['canvas_slider_hook'] = function() {
 <pre id="canvas_slider_src" class="livecell lefthalf_src" tabindex="0"
      contenteditable="true" spellcheck="false">
 <h3>Warp speed:</h3>
-<canvas id="slider" width="400" height="120" tabIndex=0
-        role="slider" aria-valuemin="1" aria-valuemax="10" aria-valuenow="5"
-        value="5" min="1" max="10">
-</canvas>
+  <canvas id="slider" width="400" height="120"
+          value="5" min="1" max="10">
+  </canvas>
 </pre>
 <div id="canvas_slider_embed" class="livecell righthalf_embed"></div>
 <pre id="canvas_slider_script" class="livecell lefthalf_script" tabindex="0"
      contenteditable="true" spellcheck="false">
-$("slider").accessibleNode.role = "slider";
-$("slider").accessibleNode.addEventListener("accessibleincrement", function() {
-  updateSlider(1);
-});
-$("slider").accessibleNode.addEventListener("accessibledecrement", function() {
-  updateSlider(-1);
-});
+  $("slider").tabIndex = 0;
+  $("slider").accessibleNode.role = "slider";
+  $("slider").accessibleNode.valueMin = 1;
+  $("slider").accessibleNode.valueMax = 10;
+  $("slider").accessibleNode.valueNow = 5;
+  $("slider").accessibleNode.addEventListener(
+      "accessibleincrement", function() {
+    updateSlider(1);
+  });
+  $("slider").accessibleNode.addEventListener(
+      "accessibledecrement", function() {
+    updateSlider(-1);
+  });
 </pre>
 <div id="canvas_slider_output" class="livecell righthalf_output"></div>
 <script>manageLiveCoding('canvas_slider');</script>
