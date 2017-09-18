@@ -365,6 +365,9 @@
     Phase 1: Accessible Properties
   </h3>
   <p>
+    Every DOM element has a corresponding <code>AccessibleNode</code>.
+  </p>
+  <p>
     Every ARIA attribute, such as <code>role</code> and
     <code>aria-checked</code> here:
   </p>
@@ -759,11 +762,114 @@ window['canvas_slider_hook'] = function() {
 <script>manageLiveCoding('canvas_slider');</script>
 </article>
 
-
+<article>
+  <h3>
+    Phase 3: Virtual Nodes
+  </h3>
+  <p>
+    In addition to the <code>AccessibleNode</code> associated with every
+    DOM element, you can <b>construct</b> an AccessibleNode and set its
+    properties from scratch.
+  </p>
+  <p>
+    We call this a "virtual" AccessibleNode.
+  </p>
+  <pre>
+    var virtualNode = new AccessibleNode();
+    virtualNode.role = "button";
+    virtualNode.label = "Play Game";
+  </pre>
+  <p>
+    Insert an AccessibleNode as the child of another AccessibleNode, like this:
+  </p>
+  <pre>
+    document.body.accessibleNode.appendChild(virtualNode);
+  </pre>
+</article>
 
 <article>
   <h3>
+    Restrictions on virtual nodes
+  </h3>
+  <p>
+    The arguments to <code>AccessibleNode.appendChild</code> and
+    <code>AccessibleNode.insertBefore</code> must be a virtual
+    AccessibleNode.
+  </p>
+  <p>
+    In other words, you can't use these methods to rearrange the
+    accessibility tree corresponding to the DOM.
+  </p>
+  <p>
+    You can only build a "virtual" accessibility tree that
+    "hangs off" of one DOM node.
+  </p>
+</article>
 
+<article>
+  <h3>
+    Bounding boxes
+  </h3>
+  <p>
+    To set the bounding box of a virtual node, provide its left, top,
+    width, and height in pixels, relative to its <code>offsetParent</code>,
+    which can be any ancestor AccessibleNode.
+  </p>
+  <pre>
+    virtualNode.offsetLeft = 30;
+    virtualNode.offsetTop = 20;
+    virtualNode.offsetWidth = 400;
+    virtualNode.offsetHeight = 300;
+    virtualNode.offsetParent = document.body.accessibleNode;
+  </pre>
+  <p>
+    Relative coordinates are important for things like a canvas-based UI,
+    because the canvas element might have CSS transforms applied to it.
+  </p>
+  <p>
+    It's also legal to set <code>offsetLeft</code>,
+    <code>offsetParent</code>, etc. on an AccessibleNode associated with a
+    DOM element, to override its bounding box.
+  </p>
+</article>
+
+<article>
+  <h3>
+    Focus management
+  </h3>
+  <p>
+    To make a node focusable, the <code>focusable</code> attribute can
+    be set. This is similar to setting tabIndex=-1 on a DOM element.
+  </p>
+  <pre>
+    virtualNode.focusable = true;
+  </pre>
+  <p>
+    To focus an accessible node, call its <code>focus()</code> method.
+  </p>
+  <pre>
+    virtualNode.focus();
+  </pre>
+  <p>
+    When a virtual accessible node is focused, input focus in the DOM
+    is unchanged. The focused accessible node is reported to assistive
+    technology and other accessibility API clients, but no DOM events
+    are fired and document.activeElement is unchanged.
+  </p>
+</article>
+
+<article>
+  <h3>
+    Phase 3 Demo
+  </h3>
+  <p>
+    Not yet ready
+  </p>
+</article>
+
+<article>
+  <h3>
+    Phase 4: Introspection
   </h3>
   <p>
   </p>
@@ -774,7 +880,7 @@ window['canvas_slider_hook'] = function() {
 
 <article>
   <h3>
-
+    Phase 4 (2)
   </h3>
   <p>
   </p>
@@ -785,7 +891,7 @@ window['canvas_slider_hook'] = function() {
 
 <article>
   <h3>
-
+    Phase 4 (3)
   </h3>
   <p>
   </p>
@@ -796,7 +902,7 @@ window['canvas_slider_hook'] = function() {
 
 <article>
   <h3>
-
+    Q &amp; A
   </h3>
   <p>
   </p>
@@ -804,205 +910,6 @@ window['canvas_slider_hook'] = function() {
 
   </p>
 </article>
-
-<article>
-  <h3>
-
-  </h3>
-  <p>
-  </p>
-  <p>
-
-  </p>
-</article>
-
-<article><h3>Example 1: Query role, label</h3>
-<pre id="rolelabel_src" class="livecell lefthalf_src" tabindex="0"
-     contenteditable="true" spellcheck="false">
-<h2>Starfleet academy</h2>
-<label>
-  Username: <input id="username" type="text">
-</label>
-<label>
-  Password: <input type="password">
-</label>
-<input id="sign_in" type="submit">
-</pre>
-<div id="rolelabel_embed" class="livecell righthalf_embed"></div>
-<pre id="rolelabel_script" class="livecell lefthalf_script" tabindex="0"
-     contenteditable="true" spellcheck="false">
-var axUsername = $("username").accessibleNode;
-print("Username field role: " + axUsername.role);
-print("Username field label: " + axUsername.label);
-
-var axSignIn = $("sign_in").accessibleNode;
-print("Sign in role: " + axSignIn.role);
-print("Sign in label: " + axSignIn.label);
-</pre>
-<div id="rolelabel_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding("rolelabel");</script>
-</article>
-
-<article><h3>Example 2: Explore tree</h3>
-<pre id="exploretree_src" class="livecell lefthalf_src" tabindex="0"
-     contenteditable="true" spellcheck="false">
-<ol id="list1">
-  <li>The Original Series</li>
-  <li>The Next Generation</li>
-  <li>Deep Space Nine</li>
-  <li>Voyager</li>
-  <li>Enterprise</li>
-</ul>
-</pre>
-<div id="exploretree_embed" class="livecell righthalf_embed"></div>
-<pre id="exploretree_script" class="livecell lefthalf_script" tabindex="0"
-     contenteditable="true" spellcheck="false">
-var axList = $("list1").accessibleNode;
-print("List role: " + axList.role);
-
-var axItem1 = axList.firstChild;
-print("Item 1 role: " + axItem1.role);
-print("Item 1 label: " + axItem1.label);
-
-var axItem2 = axItem1.nextSibling;
-print("Item 2 role: " + axItem2.role);
-print("Item 2 label: " + axItem2.label);
-
-print("axItem1.parent == axList: " + (axItem1.parent == axList));
-</pre>
-<div id="exploretree_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding("exploretree");</script>
-</article>
-
-<article><h3>Example 3: Modify role, label</h3>
-<pre id="modify_src" class="livecell lefthalf_src" tabindex="0"
-     contenteditable="true" spellcheck="false">
-<button id="bridge">Bridge</button>
-<button id="engineering">Engineering</button>
-<button id="sick_bay">Sick Bay</button>
-</pre>
-<div id="modify_embed" class="livecell righthalf_embed"></div>
-<pre id="modify_script" class="livecell lefthalf_script" tabindex="0"
-     contenteditable="true" spellcheck="false">
-$("engineering").accessibleNode.role = "link";
-$("sick_bay").accessibleNode.label = "Ten forward";
-print("Done.");
-</pre>
-<div id="modify_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding("modify");</script>
-</article>
-
-<article><h3>Example 4: Feature detection</h3>
-<pre id="feature_src" class="livecell lefthalf_src" tabindex="0"
-     contenteditable="true" spellcheck="false">
-<label>
-  <input type="checkbox" id="stun">Phasers on stun
-</label>
-</pre>
-<div id="feature_embed" class="livecell righthalf_embed"></div>
-<pre id="feature_script" class="livecell lefthalf_script" tabindex="0"
-     contenteditable="true" spellcheck="false">
-var axStun = $("stun").accessibleNode;
-print("Original role: " + axStun.role);
-
-axStun.role = "switch";
-print("Trying to set role to switch: " + axStun.role);
-
-axStun.role = "quantum-checkbox";
-print("Trying to set role to quantum-checkbox: " + axStun.role);
-</pre>
-<div id="feature_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding("feature");</script>
-</article>
-
-<article><h3>Example 5: Modify position</h3>
-<pre id="position_src" class="livecell lefthalf_src" tabindex="0"
-     contenteditable="true" spellcheck="false">
-<h2>Landing party checklist</h2>
-<label><input type="checkbox" id="phaser">Phaser</label>
-<label><input type="checkbox" id="tricorder">Tricorder</label>
-<label><input type="checkbox" id="communicator">Communicator</label>
-</pre>
-<div id="position_embed" class="livecell righthalf_embed"></div>
-<pre id="position_script" class="livecell lefthalf_script" tabindex="0"
-     contenteditable="true" spellcheck="false">
-$("tricorder").accessibleNode.offsetLeft += 50;
-$("communicator").accessibleNode.offsetTop += 25;
-print("Done.");
-</pre>
-<div id="position_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding("position");</script>
-</article>
-
-<article><h3>Example 6: Modify CSS generated text</h3>
-<pre id="cssgen_src" class="livecell lefthalf_src" tabindex="0"
-     contenteditable="true" spellcheck="false">
-<style>
-#gen:before { content: "Before, "; }
-#gen:after { content: ", After"; }
-</style>
-<h2 id="time_heading"><span id="gen">Present</span></h2>
-</div>
-
-</pre>
-<div id="cssgen_embed" class="livecell righthalf_embed"></div>
-<pre id="cssgen_script" class="livecell lefthalf_script" tabindex="0"
-     contenteditable="true" spellcheck="false">
-var axHeading = $("time_heading").accessibleNode;
-axHeading.firstChild.label = "Past, ";
-axHeading.lastChild.label = ", Future";
-print("Heading label is now: " + axHeading.label);
-</pre>
-<div id="cssgen_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding("cssgen");</script>
-</article>
-
-<article><h3>Example 7: Accessible click listener</h3>
-<pre id="click_src" class="livecell lefthalf_src" tabindex="0"
-     contenteditable="true" spellcheck="false">
-<button id="kirk">James T Kirk</button>
-<button id="picard">Jean-Luc Picard</button>
-</pre>
-<div id="click_embed" class="livecell righthalf_embed"></div>
-<pre id="click_script" class="livecell lefthalf_script" tabindex="0"
-     contenteditable="true" spellcheck="false">
-$("kirk").addEventListener("click", function() {
-  print("Clicked on Kirk");
-});
-$("picard").addEventListener("click", function() {
-  print("Clicked on Picard");
-});
-$("picard").accessibleNode.ondefaultaction = function() {
-  print("Accessible click on Picard");
-  return false;
-};
-</pre>
-<div id="click_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding("click");</script>
-</article>
-
-<article><h3>Example 8: Virtual element</h3>
-<pre id="virtual_src" class="livecell lefthalf_src" tabindex="0"
-     contenteditable="true" spellcheck="false">
-  <img src="enterprise.gif" id="enterprise">
-</pre>
-<div id="virtual_embed" class="livecell righthalf_embed"></div>
-<pre id="virtual_script" class="livecell lefthalf_script" tabindex="0"
-     contenteditable="true" spellcheck="false">
-var axEnterprise = $("enterprise").accessibleNode;
-axEnterprise.role = "group";
-
-var axText = new AccessibleElement({
-    "role": function() { return "text"; },
-    "label": function() { return "Space, the final frontier"; },
-    "offsetWidth": function() { return 300; },
-    "offsetHeight": function() { return 100; }});
-axEnterprise.appendChild(axText);
-</pre>
-<div id="virtual_output" class="livecell righthalf_output"></div>
-<script>manageLiveCoding("virtual");</script>
-</article>
-
 
 <article>
   <h3>
@@ -1041,49 +948,6 @@ axEnterprise.appendChild(axText);
   </pre>
   <div id="listbox_output" class="livecell righthalf_output"></div>
   <script>manageLiveCoding("listbox");</script>
-</article>
-
-<article><h3>IDL of what's implemented so far</h3>
-<pre style="width:600px; float: left;">
-[ Constructor(AccessibleSource source) ]
-interface AccessibleElement : EventTarget {
-  attribute DOMString role;
-  attribute DOMString label;
-
-  attribute long? offsetLeft;
-  attribute long? offsetTop;
-  attribute long? offsetWidth;
-  attribute long? offsetHeight;
-
-  readonly attribute AccessibleElement parent;
-  readonly attribute AccessibleElement firstChild;
-  readonly attribute AccessibleElement lastChild;
-  readonly attribute AccessibleElement nextSibling;
-  readonly attribute AccessibleElement previousSibling;
-
-  void appendChild(AccessibleElement child);
-
-  attribute EventHandler ondefaultaction;
-  attribute EventHandler onaccessiblesetvalue;
-
-  void setSource(AccessibleSource source);
-};
-</pre>
-<pre style="width:600px; float: left; margin-left: 20px;">
-partial interface Node {
-  readonly attribute AccessibleElement?
-      accessibleNode;
-};
-
-dictionary AccessibleSource {
-  Function role;
-  Function label;
-  Function offsetTop;
-  Function offsetLeft;
-  Function offsetWidth;
-  Function offsetHeight;
-};
-</pre>
 </article>
 </section>
 
