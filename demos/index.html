@@ -397,60 +397,65 @@
 
 </article>
 
-<article><h3>IDL of Phase 1</h3>
-<pre style="width:600px; float: left;">
-interface AccessibleNode {
-&nbsp;&nbsp;attribute AccessibleNode? activeDescendant;
-&nbsp;&nbsp;attribute boolean? atomic;
-&nbsp;&nbsp;attribute DOMString? autocomplete;
-&nbsp;&nbsp;attribute boolean? busy;
-&nbsp;&nbsp;attribute DOMString? checked;
-&nbsp;&nbsp;attribute long? colCount;
-&nbsp;&nbsp;attribute unsigned long? colIndex;
-&nbsp;&nbsp;attribute unsigned long? colSpan;
-&nbsp;&nbsp;attribute AccessibleNodeList? controls;
-&nbsp;&nbsp;attribute DOMString? current;
-&nbsp;&nbsp;attribute AccessibleNodeList? describedBy;
-&nbsp;&nbsp;attribute AccessibleNode? details;
-&nbsp;&nbsp;attribute boolean? disabled;
-&nbsp;&nbsp;attribute AccessibleNode? errorMessage;
-&nbsp;&nbsp;attribute boolean? expanded;
-&nbsp;&nbsp;attribute AccessibleNodeList? flowTo;
-&nbsp;&nbsp;attribute DOMString? hasPopUp;
-&nbsp;&nbsp;attribute boolean? hidden;
-&nbsp;&nbsp;attribute DOMString? invalid;
-&nbsp;&nbsp;attribute DOMString? keyShortcuts;
-&nbsp;&nbsp;attribute DOMString? label;
-&nbsp;&nbsp;attribute AccessibleNodeList? labeledBy;
-&nbsp;&nbsp;attribute unsigned long? level;
-&nbsp;&nbsp;attribute DOMString? live;
-</pre>
-<pre style="width:600px; float: left; margin-left: 20px;">
-&nbsp;&nbsp;attribute boolean? modal;
-&nbsp;&nbsp;attribute boolean? multiline;
-&nbsp;&nbsp;attribute boolean? multiselectable;
-&nbsp;&nbsp;attribute DOMString? orientation;
-&nbsp;&nbsp;attribute AccessibleNodeList? owns;
-&nbsp;&nbsp;attribute DOMString? placeholder;
-&nbsp;&nbsp;attribute unsigned long? posInSet;
-&nbsp;&nbsp;attribute DOMString? pressed;
-&nbsp;&nbsp;attribute boolean? readOnly;
-&nbsp;&nbsp;attribute DOMString? relevant;
-&nbsp;&nbsp;attribute boolean? required;
-&nbsp;&nbsp;attribute DOMString? role;
-&nbsp;&nbsp;attribute DOMString? roleDescription;
-&nbsp;&nbsp;attribute long? rowCount;
-&nbsp;&nbsp;attribute unsigned long? rowIndex;
-&nbsp;&nbsp;attribute unsigned long? rowSpan;
-&nbsp;&nbsp;attribute boolean? selected;
-&nbsp;&nbsp;attribute long? setSize;
-&nbsp;&nbsp;attribute DOMString? sort;
-&nbsp;&nbsp;attribute double? valueMax;
-&nbsp;&nbsp;attribute double? valueMin;
-&nbsp;&nbsp;attribute double? valueNow;
-&nbsp;&nbsp;attribute DOMString? valueText;
-};
-</pre>
+<article>
+  <h3>
+    IDL of Phase 1
+  </h3>
+  <pre style="width:600px; float: left;">
+    interface AccessibleNode {
+      attribute AccessibleNode? activeDescendant;
+      attribute boolean? atomic;
+      attribute DOMString? autocomplete;
+      attribute boolean? busy;
+      attribute DOMString? checked;
+      attribute long? colCount;
+      attribute unsigned long? colIndex;
+      attribute unsigned long? colSpan;
+      attribute AccessibleNodeList? controls;
+      attribute DOMString? current;
+      attribute AccessibleNodeList? describedBy;
+      attribute AccessibleNode? details;
+      attribute boolean? disabled;
+      attribute AccessibleNode? errorMessage;
+      attribute boolean? expanded;
+      attribute AccessibleNodeList? flowTo;
+      attribute DOMString? hasPopUp;
+      attribute boolean? hidden;
+      attribute DOMString? invalid;
+      attribute DOMString? keyShortcuts;
+      attribute DOMString? label;
+      attribute AccessibleNodeList? labeledBy;
+      attribute unsigned long? level;
+      attribute DOMString? live;
+    ...
+  </pre>
+  <pre style="width:600px; float: left; margin-left: 20px;">
+    ...
+      attribute boolean? modal;
+      attribute boolean? multiline;
+      attribute boolean? multiselectable;
+      attribute DOMString? orientation;
+      attribute AccessibleNodeList? owns;
+      attribute DOMString? placeholder;
+      attribute unsigned long? posInSet;
+      attribute DOMString? pressed;
+      attribute boolean? readOnly;
+      attribute DOMString? relevant;
+      attribute boolean? required;
+      attribute DOMString? role;
+      attribute DOMString? roleDescription;
+      attribute long? rowCount;
+      attribute unsigned long? rowIndex;
+      attribute unsigned long? rowSpan;
+      attribute boolean? selected;
+      attribute long? setSize;
+      attribute DOMString? sort;
+      attribute double? valueMax;
+      attribute double? valueMin;
+      attribute double? valueNow;
+      attribute DOMString? valueText;
+    };
+  </pre>
 </article>
 
 <article>
