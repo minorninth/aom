@@ -507,9 +507,119 @@
 
 </article>
 
+<article>
+  <h3>
+    Phase 2: Background on events from AT
+  </h3>
+  <p>
+    As a reminder, AT users are often not generating keyboard, mouse, and
+    touch events.
+  </p>
+  <p>
+    They issue high-level commands (click, focus, select, dismiss, etc.)
+    directly to their AT, and the AT tells the app to take that action
+    via accessibility APIs.
+  </p>
+</article>
 
-<article><h3>Phase 2 demo: Detect</h3>
-  <p>detect if we're running AT</p>
+<article>
+  <h3>
+    Phase 2: Accessible Actions / Input Events
+  </h3>
+  <p>
+    Every AccessibleNode is an EventTarget, and you can listen to input
+    events directly from assistive technology.
+  </p>
+  <pre>
+    button.accessibleNode.addEventListener("accessibleclick", function(event) {
+      console.log("Got Click from assistive technology");
+    });
+  </pre>
+  <p>
+    Supported events include:
+  </p>
+  <pre>
+    "accessibleclick"
+    "accessiblecontextmenu"
+    "accessibledecrement"
+    "accessibledismiss"
+    "accessiblefocus"
+    "accessibleincrement"
+    "accessiblescrollintoview"
+    "accessibleselect"
+    "accessiblesetvalue"
+  </pre>
+</article>
+
+<article>
+  <h3>
+    Phase 2 use cases include...
+  </h3>
+  <ul>
+    <li>Focus events in composite controls, e.g. when the AT wants to focus
+      an option or cell, but the web app wants to focus the listbox or grid
+      and use aria-activedescendant.
+    <li>Events that don't have any equivalent on the web now, like
+      <code>"increment"</code>, <code>"decrement"</code>, or
+      <code>"dismiss"</code>.
+    <li>Capturing events on virtual nodes intended entirely for AT
+      (more in Phase 3).
+  </ul>
+</article>
+
+<article>
+  <h3>
+    Phase 2 and privacy
+  </h3>
+  <p>
+    If an AOM event listener is ever called, the web page
+    *definitively knows* that the user is running AT.
+  </p>
+  <p>
+    Some users may not be comfortable revealing this, due to
+    concerns of discrimination, or of being offered an
+    undesired alternate interface.
+  </p>
+  <p>
+    So triggering an AOM event listeners brings up a new
+    <b>user permission</b> dialog before the web page can capture
+    the event.
+  </p>
+</article>
+
+<article>
+  <h3>
+    Phase 2 and feature detection
+  </h3>
+  <p>
+    If the user <em>does</em> grant permission, this is great
+    because the app can now enable any extra features needed
+    by AT.
+  </p>
+  <p>
+    If the user does not grant permission, they can be confident
+    they're getting the same experience as everyone else.
+  </p>
+</article>
+
+<article>
+  <h3>
+    Phase 2 demo: Feature detection
+  </h3>
+  <p>
+    This button has an AOM click listener on it:
+  </p>
+  <button id="at_detect" class="bigbutton">
+    Click here using AT
+  </button>
+  <div id="at_status" class="bigresult" aria-live="true">
+    Status: I don't know if you're using AT.
+  </div>
+  <script>
+    $("at_detect").accessibleNode.addEventListener("accessibleclick", function() {
+      $("at_status").textContent = "Status: You are using AT!";
+    });
+  </script>
 </article>
 
 

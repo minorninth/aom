@@ -199,3 +199,20 @@ article.title {
   left: 40%;
   top: 50%;
 }
+
+.bigbutton {
+  display: block;
+  margin: 30px auto;
+  padding: 20px 40px;
+  font-size: 40px;
+  color: #090;
+}
+
+.bigresult {
+  border: 1px solid #060;
+  display: block;
+  margin: 30px 0;
+  padding: 12px 24px;
+  font-size: 30px;
+  color: #090;
+}
