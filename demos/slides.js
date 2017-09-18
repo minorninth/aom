@@ -173,6 +173,7 @@ function updateSlides() {
     }
 
     el.setAttribute('aria-hidden', 'true');
+    el.setAttribute('inert', 'true');
 
     switch (i) {
       case curSlide - 2:
@@ -385,6 +386,7 @@ function makeCurrentSlideAccessible() {
     return;
   }
   el.removeAttribute('aria-hidden');
+  el.removeAttribute('inert');
   el.setAttribute('tabIndex', '-1');
   el.focus();
   window.setTimeout(function() {
@@ -403,23 +405,23 @@ function handleTransitionEnd(event) {
 function setupInteraction() {
   /* Clicking and tapping */
 
+  var slides = document.querySelector('section.slides');
+
   var el = document.createElement('button');
   el.innerHTML = '&#x2190;';
   el.className = 'slide-area';
   el.setAttribute('aria-label', 'Previous Slide');
-  el.tabIndex = -1;
   el.id = 'prev-slide-area';
   el.addEventListener('click', prevSlide, false);
-  document.querySelector('section.slides').appendChild(el);
+  slides.insertBefore(el, slides.firstElementChild);
 
   el = document.createElement('button');
   el.className = 'slide-area';
   el.innerHTML = '&#x2192;';
   el.setAttribute('aria-label', 'Next Slide');
-  el.tabIndex = -1;
   el.id = 'next-slide-area';
   el.addEventListener('click', nextSlide, false);
-  document.querySelector('section.slides').appendChild(el);
+  slides.appendChild(el);
 
   /* Swiping */
 
