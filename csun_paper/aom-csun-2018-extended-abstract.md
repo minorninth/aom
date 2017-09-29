@@ -46,7 +46,7 @@ the web browser's job to convert the web page into an accessibility tree
 that the assistive technology can access, and relay commands from
 assistive technology back to the web page.
 
-Native HTML elements are implicitly mapped to accessibility APIs. For
+Native HTML elements are mapped to accessibility APIs. For
 example, an `<img>` element will automatically be mapped to an
 accessibility node with a role of "image" and a label based on the alt
 attribute (if present).
@@ -56,7 +56,7 @@ Applications, [1], and henceforth just *ARIA*) allows developers to
 annotate elements with attributes to override the default role and
 semantic properties of an element. For example, the following code
 changes the semantics of a generic `div` element and exposes it as
-a checked checkbox in the accessibility tree:
+a checked checkbox to assistive technology.
 
 ```html
 <div role="checkbox" aria-checked="true">...</div>
@@ -129,8 +129,8 @@ to specify relationships which cross over Shadow DOM boundaries.
 While AOM and ARIA both affect the computed accessible properties of a
 node, and have the same vocabulary, they are separate interfaces. ARIA
 does not reflect to AOM. In the case where and AOM Accessible Property
-and the corresponding ARIA attribute have different values, the AOM
-property takes precedence.
+and the corresponding ARIA attribute have different values, we suggest
+the AOM takes precedence.
 
 ### Phase 2: Accessible Actions
 
@@ -142,10 +142,10 @@ then perform a gesture to increment a range-based control.  The screen
 reader sends the browser an increment *action* on the slider element
 in the accessibility tree.
 
-Currently, browsers implement partial support by accessible actions either by
-implementing built-in support for native HTML elements (for example, a native
-HTML `<input type="range">` already supports increment and decrement actions,
-and text boxes already support actions to set the value or insert text.
+Currently, browsers support by accessible actions for native HTML elements.
+For example, a native HTML `<input type="range">` already supports
+increment and decrement actions, and a native HTML `input type="textbox"`
+supports actions to set the value or insert text.
 
 However, there is no way for web authors to listen to accessible actions on
 custom elements. A custom slider won't react to increment and decrement
@@ -161,15 +161,15 @@ To implement a custom slider, the author could simply listen for
 `increment` and `decrement` events.
 
 ```js
-customSlider.accessibleNode.addEventListener('accessibleincrement', function() {
+customSlider.accessibleNode.addEventListener('increment', function() {
   customSlider.value += 1;
 });
-customSlider.accessibleNode.addEventListener('accessibledecrement', function() {
+customSlider.accessibleNode.addEventListener('decrement', function() {
   customSlider.value -= 1;
 });
 ```
 
-The supported actions would include:
+Here are some of the proposed actions that would be supported:
 
 * `click`
 * `contextmenu`
