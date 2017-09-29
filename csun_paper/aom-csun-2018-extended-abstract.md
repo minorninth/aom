@@ -46,7 +46,7 @@ the web browser's job to convert the web page into an accessibility tree
 that the assistive technology can access, and relay commands from
 assistive technology back to the web page.
 
-Native HTML elements are mapped to accessibility APIs. For
+Native HTML elements are mapped to nodes in this accessibility tree. For
 example, an `<img>` element will automatically be mapped to an
 accessibility node with a role of "image" and a label based on the alt
 attribute (if present).
@@ -62,10 +62,12 @@ a checked checkbox to assistive technology.
 <div role="checkbox" aria-checked="true">...</div>
 ```
 
-Web apps that push the boundaries of what's possible on the web
+ARIA has been adopted by all modern web browsers and countless web
+sites take advantage of it to make their experience more accessible.
+Still, web apps that push the boundaries of what's possible on the web
 struggle to make them accessible because the APIs aren't yet
-sufficient - in particular, they are much less expressive than the
-native APIs that the browser communicates with.
+sufficient - in particular, they are less expressive than the native
+APIs that the browser communicates with.
 
 ## The Accessibility Object Model
 
@@ -103,21 +105,22 @@ element.accessibleNode.role = "checkbox";
 element.accessibleNode.checked = true;
 ```
 
-One use case this solves is that Custom Elements [3] "sprout"
-attributes in order to express their own semantics. AOM allows
-custom elements to behave more like native HTML elements, where
-their accessibility behavior is encapsulated.
+One use case this solves is that Custom Elements [3] would no longer
+need to "sprout" attributes in order to express their own
+semantics. AOM allows custom elements to behave more like native HTML
+elements, where their accessibility behavior is encapsulated.
 
 Furthermore, writing Accessible Properties would allow specifying
-accessible relationships without requiring IDREFs, as authors can now
-pass object references. Currently attributes like aria-describedby
-and aria-activedescendant take one or more IDREFs, like this:
+accessible relationships without referencing the other element
+via an ID. As an example, this HTML indicates that the current
+selected option within a listbox is the one with id `"id3"`:
 
 ```html
 <div role="listbox" aria-activedescendant="id3">
 ```
 
-Accessible Properties would allow passing object references instead:
+Instead, AOM would allow using an object reference instead, avoiding
+the need for an element ID.
 
 ```js
 element.accessibleNode.activeDescendant = accessibleNode3;
@@ -142,23 +145,18 @@ then perform a gesture to increment a range-based control.  The screen
 reader sends the browser an increment *action* on the slider element
 in the accessibility tree.
 
-Currently, browsers support by accessible actions for native HTML elements.
+Currently, browsers support accessible actions for native HTML elements.
 For example, a native HTML `<input type="range">` already supports
-increment and decrement actions, and a native HTML `input type="textbox"`
+increment and decrement actions, and a native HTML `<input type="textbox">`
 supports actions to set the value or insert text.
 
 However, there is no way for web authors to listen to accessible actions on
 custom elements. A custom slider won't react to increment and decrement
 gestures.
 
-Accessible Actions gives web developers a mechanism to listen for accessible
-actions directly, by adding event listeners on an `AccessibleNode`.
-This is analogous to listening for user interaction events on a DOM node,
-except that the interaction event arrives via an assistive technology API,
-so it is directed to the accessible node first.
-
-To implement a custom slider, the author could simply listen for
-`increment` and `decrement` events.
+Accessible Actions gives web developers a mechanism to listen for
+accessible actions directly. To implement a custom slider, the author
+could simply listen for `increment` and `decrement` events:
 
 ```js
 customSlider.accessibleNode.addEventListener('increment', function() {
@@ -231,10 +229,6 @@ accessibility tree computation slightly differently.  In order for
 this API to be useful, it needs to work consistently across browsers,
 so that developers don't need to write special case code for each.
 
-We want to take the appropriate time to ensure we can agree
-on the details for how the tree should be computed
-and represented.
-
 ### Next Steps
 
 We are developing this spec as part of the Web Platform Incubator
@@ -248,7 +242,7 @@ We welcome feedback from anyone in the web developer or accessibility
 communities.
 
 For more details, see the current draft spec [2] and follow links
-there to file bug reports.
+there to try out demos or file bug reports.
 
 ## Additional thanks
 
@@ -266,6 +260,8 @@ Many thanks for valuable feedback, advice, and tools from:
 - Nan Wang
 - Robin Berjon
 - Tess O'Connor
+
+## References
 
 - [1] Diggs, J., Schwerdtfeger, R., Craig, J., McCarron, S., Cooper, M. (2016). Accessible Rich Internet Applications (WAI-ARIA) 1.1. W3C Candidate Recommendation, available from: https://www.w3.org/TR/wai-aria-1.1/
 - [2] Boxhall, A., Craig, J., Mazzoni, D., Surkov, A. (2017). Accessibility Object Model (AOM). WICG Unofficial Draft, available from: https://wicg.github.io/aom/spec/
