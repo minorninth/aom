@@ -764,6 +764,26 @@ window['canvas_slider_hook'] = function() {
 
 <article>
   <h3>
+    IDL of Phase 2
+  </h3>
+  <pre>
+    interface AccessibleNode : EventTarget {
+      ...
+      attribute EventHandler onaccessibleclick;
+      attribute EventHandler onaccessiblecontextmenu;
+      attribute EventHandler onaccessibledecrement;
+      attribute EventHandler onaccessibledismiss;
+      attribute EventHandler onaccessiblefocus;
+      attribute EventHandler onaccessibleincrement;
+      attribute EventHandler onaccessiblescrollintoview;
+      attribute EventHandler onaccessibleselect;
+      attribute EventHandler onaccessiblesetvalue;
+    };
+  </pre>
+</article>
+
+<article>
+  <h3>
     Phase 3: Virtual Nodes
   </h3>
   <p>
@@ -835,6 +855,15 @@ window['canvas_slider_hook'] = function() {
 
 <article>
   <h3>
+    Virtual AccessibleNode demo
+  </h3>
+  <div style="width: 200px; margin: 200px auto;">
+    <a href="tictactoe.html" target="_blank">Tic-tac-toe</a>
+  </div>
+</article>
+
+<article>
+  <h3>
     Focus management
   </h3>
   <p>
@@ -860,11 +889,46 @@ window['canvas_slider_hook'] = function() {
 
 <article>
   <h3>
-    Phase 3 Demo
+    Selection management
   </h3>
   <p>
-    Not yet ready
+    To select text in an accessible node, call its <code>select()</code> method.
   </p>
+  <pre>
+    virtualNode.select(5, 10);
+  </pre>
+  <p>
+    When a virtual accessible node has a selection set in it,
+    selection in the DOMis unchanged. The accessible selection is
+    reported to assistive technology and other accessibility API
+    clients, but no DOM events are fired and window.selection is
+    unchanged.
+  </p>
+</article>
+
+<article>
+  <h3>
+    IDL of Phase 3
+  </h3>
+  <pre>
+    [Constructor] interface AccessibleNode : EventTarget {
+      ...
+      attribute AccessibleNode? offsetParent;
+      attribute long? offsetLeft;
+      attribute long? offsetTop;
+      attribute long? offsetWidth;
+      attribute long? offsetHeight;
+
+      attribute boolean focusable;
+
+      [RaisesException] void appendChild(AccessibleNode child);
+      [RaisesException] void insertBefore(AccessibleNode child, AccessibleNode before);
+      [RaisesException] void removeChild(AccessibleNode child);
+
+      void focus();
+      void select(long start, long end);
+    };
+  </pre>
 </article>
 
 <article>
@@ -872,32 +936,87 @@ window['canvas_slider_hook'] = function() {
     Phase 4: Introspection
   </h3>
   <p>
+    Every AccessibleNode has a corresponding <code>ComputedAccessibleNode</code>.
   </p>
   <p>
-
+    Accessing it is asynchronous (via a Promise),
+    and it gives you full access to that node, and the accessibility tree.
   </p>
+  <pre>
+    myListItem.accessibleNode.computed().then(function(computed) {
+      computed.role;             // "listitem"
+      computed.name;             // "Picard"
+      computed.parent.role;      // "list"
+      computed.children.length;  // 0
+    });
+  </pre>
 </article>
 
 <article>
   <h3>
-    Phase 4 (2)
+    Phase 4: Feature detection
   </h3>
   <p>
+    The <code>ComputedAccessibleNode</code> enables you to determine if a
+    role, or any other accessibility feature, is supported.
   </p>
-  <p>
-
-  </p>
+  <pre>
+    var button = document.createElement("button");
+    button.accessibleNode.role = "hammer";
+    button.accessibleNode.computed().then(function(computed) {
+      computed.role;             // "button" (not "hammer")
+    });
+  </pre>
 </article>
 
 <article>
   <h3>
-    Phase 4 (3)
+    Phase 4: Walking the tree
   </h3>
   <p>
+    Walk the accessibility tree for testing or debugging.
   </p>
-  <p>
+  <pre>
+    function printAccessibilityTree(computed, indent) {
+      print(spaces(indent) + 'Role: ' + computed.role + ', Name: ' + computed.name);
+      for (var i = 0; i < computed.children.length; i++) {
+        printAccessibilityTree(computed.children[i], indent + 1);
+      }
+    }
 
+    document.body.accessibleNode.computed().then(function(computed) {
+      printAccessibilityTree(computed, 0);
+    });
+  </pre>
+</article>
+
+<article>
+  <h3>
+    Phase 4: Writing in-browser AT
+  </h3>
+  <p>
+    Write a screen reader or other AT
   </p>
+  <pre>
+    document.body.accessibleNode.computed().then(function(computed) {
+      computed.addEventListener('focus', function(target) {
+        speechSynthesis.speak(new SpeechSynthesisUtterance(target.name + ", " + target.role));
+      });
+    });
+  </pre>
+</article>
+
+<article>
+  <h3>
+    Roadmap
+  </h3>
+  <ul>
+    <li>Q2 2017: Implement Phase 1
+    <li>Q3 2017: Implement Phase 2
+    <li>Q4 2017: Implement Phase 3, evangelize
+    <li>Q1 2018: Debate, reach consensus on Phases 1 - 3, complete spec.
+    <li>Q2 2018: Start shipping Phases 1 - 3, start writing Phase 4.
+  </ul>
 </article>
 
 <article>
